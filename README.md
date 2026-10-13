@@ -17,7 +17,7 @@ npm run dev
 npm run build
 ```
 
-The Vite base path is `/loopee/` for GitHub Pages.
+The default Vite base path is `/`, for Netlify and local development. The GitHub Pages workflow builds with `--base=/loopee/`.
 
 ## GitHub Pages
 
@@ -28,3 +28,9 @@ Expected URL after Pages activation: https://lojauget-star.github.io/loopee/
 ## Current limits
 
 Microphone capture requires HTTPS and browser permission. Saved sessions contain mix settings, not audio. WAV export does not include live effects. Imported audio is not time-stretched to project tempo. This is a prototype, not yet a production commercial looper.
+
+## Netlify
+
+Connect the `main` branch of this repository. `netlify.toml` sets the build command to `npm run build`, the publish directory to `dist`, and Node.js to 24.
+
+For manual deployment, run `npm ci` and `npm run build`, then upload the **dist** folder, not the source checkout. Its root must contain `index.html` and `assets/`.

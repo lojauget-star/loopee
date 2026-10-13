@@ -18,7 +18,7 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm run build
+      - run: npm run build -- --base=/loopee/
       - name: Publish built files
         env:
           GH_TOKEN: ${{ github.token }}
