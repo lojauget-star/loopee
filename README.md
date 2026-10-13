@@ -47,3 +47,9 @@ For manual deployment, run `npm ci` and `npm run build`, then upload the **dist*
 Use headphones to keep speakers from being recorded into new layers. Recording uses AudioWorklet PCM capture on the audio render clock. Browser/device input latency can affect performance; there is no latency calibration yet. Session settings do not preserve recorded audio across reloads; export WAV before closing.
 
 Run capture boundary tests with `node --test tests/loop-recorder.test.js`.
+
+## Avoid recording existing layers again
+
+The recorder is connected only to microphone input, never to the playback/effects bus. With speakers, microphone pickup can still include existing layers acoustically. The **Alto-falantes · reduzir eco** mode requests browser echo cancellation (enabled by default); effectiveness depends on the browser, device and room and can affect music tone. The app warns if the input settings do not confirm echo cancellation. **Fones / interface · áudio puro** disables echo processing; use headphones or an isolated audio interface output. Noise suppression and automatic gain remain off in both modes to preserve music. The chosen mode persists on the device and cannot change during capture.
+
+Verified in Chromium with a silent simulated microphone: playing demo layers with reverb and delay do not appear in the captured PCM. This establishes digital routing isolation, not real-world acoustic echo removal.
