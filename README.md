@@ -27,7 +27,7 @@ Expected URL after Pages activation: https://lojauget-star.github.io/loopee/
 
 ## Current limits
 
-Microphone capture requires HTTPS and browser permission. Saved sessions contain mix settings, not audio. WAV export does not include live effects. Imported audio is padded or trimmed to the shared loop duration, without time-stretching. This is a prototype, not yet a production commercial looper.
+Microphone capture requires HTTPS and browser permission. Saved sessions contain mix settings, not audio. WAV export includes the separate effect chain of each unmuted track. Imported audio is padded or trimmed to the shared loop duration, without time-stretching. This is a prototype, not yet a production commercial looper.
 
 ## Netlify
 
@@ -57,3 +57,9 @@ Verified in Chromium with a silent simulated microphone: playing demo layers wit
 ## Guided recording interface
 
 Use **Gravar primeira camada**, then **Gravar nova camada**. Each button press prepares capture directly; no separate empty-track creation is needed. The recording guide derives its state from the audio clock and shows microphone permission, waiting/count-in, recording, finishing, and loop playback. It displays beats until entry, seconds until automatic completion, progress, and a pending layer in the canvas. The main button becomes **Cancelar entrada** while waiting or **Concluir no próximo compasso** during capture. Existing layers remain playing throughout an overdub. Timing state tests run with `node --test tests/*.test.js`.
+
+## Mobile controls and per-track effects
+
+BPM, loop bars, and the metronome remain visible on phone layouts with touch-sized controls. BPM/bars are fixed once a loop has audio; the interface explains that **Novo loop** unlocks them.
+
+Each imported or recorded track starts dry, with its own reverb, delay, filter, drive, chorus and compressor. Use the track's **FX** button or the effects panel's track selector. Edits and Reset affect only that track. Track effect settings are saved with session settings, and WAV rendering uses the same per-track processing graph. Microphone input remains separate from playback and effects. Effects are summed into master output; volume/mute/solo apply after each track's effect chain.
