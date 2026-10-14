@@ -1,65 +1,51 @@
-# Loopee Studio
+# Loopee Live Station
 
-Browser-based music loop studio with microphone recording, audio import, six live effects, mute/solo controls, and stereo WAV export.
+A minimal five-track browser loop studio with microphone capture, synchronized overdubs, per-track transport, undo/redo, input and track effects, synthesized rhythms, and stereo WAV export.
 
-## Development
+## Run and build
 
 Requires Node.js 24.
 
 ```sh
 npm ci
 npm run dev
-```
-
-## Build
-
-```sh
 npm run build
+node --test tests/*.test.js
 ```
 
-The default Vite base path is `/`, for Netlify and local development. The GitHub Pages workflow builds with `--base=/loopee/`.
+Development and Netlify use `/`. The GitHub Pages workflow builds with `--base=/loopee/`.
 
-## GitHub Pages
+## Make a loop
 
-In repository **Settings → Pages**, choose **Deploy from a branch**, then **gh-pages / (root)** and save. The deployment workflow rebuilds and updates `gh-pages` on pushes to `main`.
+1. Choose BPM and 1, 2, 4 or 8 bars in 4/4. Tap tempo is available before the session has audio.
+2. Press **Gravar** on an empty slot. Allow microphone access and enter after the four-beat count-in.
+3. The selected cycle records and starts looping automatically. The recording guide shows when capture starts and ends.
+4. Record into another slot to build a separate track, or press **Overdub** to layer audio into an existing track.
+5. A second record press finishes on the next bar, padding the remaining cycle with silence. While waiting, the main action cancels capture.
+6. Each track offers synced start/stop, volume, mute/solo, one-level Undo/Redo, Reverse, half speed and Clear. **Tocar todas / Parar todas** control the station.
 
-Expected URL after Pages activation: https://lojauget-star.github.io/loopee/
+Switch off Reverse and half speed before overdubbing that track. BPM and loop length stay fixed after audio is created; **Novo loop** clears the session after confirmation and unlocks them.
 
-## Current limits
+## Effects and rhythms
 
-Microphone capture requires HTTPS and browser permission. Saved sessions contain mix settings, not audio. WAV export includes the separate effect chain of each unmuted track. Imported audio is padded or trimmed to the shared loop duration, without time-stretching. This is a prototype, not yet a production commercial looper.
+**Efeitos de entrada** processes only the microphone and is baked into new recordings. **Efeitos da pista** changes only the selected track during playback. A manual microphone gain control adjusts input level before capture. Both use original reverb, delay, filter, drive, chorus and compressor implementations. Recorded tracks start with dry playback effects.
 
-## Netlify
+The metronome and two synthesized rhythm patterns follow the audio clock. They are not digitally fed into capture; use headphones to avoid acoustic re-recording. WAV mixdown includes audible tracks, effects and the active rhythm. If an audible track uses half speed, export spans two base cycles to include its whole phrase.
 
-Connect the `main` branch of this repository. `netlify.toml` sets the build command to `npm run build`, the publish directory to `dist`, and Node.js to 24.
+## Save sessions
 
-For manual deployment, run `npm ci` and `npm run build`, then upload the **dist** folder, not the source checkout. Its root must contain `index.html` and `assets/`.
+**Salvar sessão** stores actual PCM audio and settings in IndexedDB on this browser/device. **My sessions** lists sessions and restores their audio. Sessions do not sync across devices, and clearing browser site data removes them. Save a WAV backup outside the browser. Very large sessions may exceed browser storage quota.
 
-## Live looper
+## Mobile microphone
 
-1. Start with an empty canvas. Choose BPM and 1, 2, 4 or 8 bars in 4/4.
-2. Press Record and allow microphone access. A four-beat count-in precedes the first take.
-3. Play for the selected number of bars. Capture ends automatically and the recorded layer loops immediately.
-4. Press Record again. Capture begins at the next loop boundary while existing layers continue uninterrupted.
-5. Press Record during capture to finish on the next bar boundary. Remaining bars are silence; every layer keeps the shared loop length.
-6. Stop cancels an active or armed take and stops playback. Novo loop clears the session after confirmation and unlocks BPM and loop duration.
+Requires HTTPS and microphone permission. **Alto-falantes · reduzir eco** requests browser echo cancellation; it cannot guarantee isolation and may change musical tone. **Fones / interface · áudio puro** disables echo processing. Noise suppression and automatic gain remain off to preserve music. Input effects can still intentionally process this signal. Real-device latency and echo suppression vary; no latency calibration is implemented yet.
 
-Use headphones to keep speakers from being recorded into new layers. Recording uses AudioWorklet PCM capture on the audio render clock. Browser/device input latency can affect performance; there is no latency calibration yet. Session settings do not preserve recorded audio across reloads; export WAV before closing.
+## Deploy
 
-Run capture boundary tests with `node --test tests/loop-recorder.test.js`.
+Netlify: connect `main`; `netlify.toml` uses `npm run build`, publish directory `dist`, and Node 24. For manual upload, upload the contents of `dist`, not the source checkout.
 
-## Avoid recording existing layers again
+GitHub Pages: in repository Settings → Pages select Deploy from a branch, `gh-pages / (root)`. The workflow updates that branch on pushes to `main`.
 
-The recorder is connected only to microphone input, never to the playback/effects bus. With speakers, microphone pickup can still include existing layers acoustically. The **Alto-falantes · reduzir eco** mode requests browser echo cancellation (enabled by default); effectiveness depends on the browser, device and room and can affect music tone. The app warns if the input settings do not confirm echo cancellation. **Fones / interface · áudio puro** disables echo processing; use headphones or an isolated audio interface output. Noise suppression and automatic gain remain off in both modes to preserve music. The chosen mode persists on the device and cannot change during capture.
+## Reference and implementation scope
 
-Verified in Chromium with a silent simulated microphone: playing demo layers with reverb and delay do not appear in the captured PCM. This establishes digital routing isolation, not real-world acoustic echo removal.
-
-## Guided recording interface
-
-Use **Gravar primeira camada**, then **Gravar nova camada**. Each button press prepares capture directly; no separate empty-track creation is needed. The recording guide derives its state from the audio clock and shows microphone permission, waiting/count-in, recording, finishing, and loop playback. It displays beats until entry, seconds until automatic completion, progress, and a pending layer in the canvas. The main button becomes **Cancelar entrada** while waiting or **Concluir no próximo compasso** during capture. Existing layers remain playing throughout an overdub. Timing state tests run with `node --test tests/*.test.js`.
-
-## Mobile controls and per-track effects
-
-BPM, loop bars, and the metronome remain visible on phone layouts with touch-sized controls. BPM/bars are fixed once a loop has audio; the interface explains that **Novo loop** unlocks them.
-
-Each imported or recorded track starts dry, with its own reverb, delay, filter, drive, chorus and compressor. Use the track's **FX** button or the effects panel's track selector. Edits and Reset affect only that track. Track effect settings are saved with session settings, and WAV rendering uses the same per-track processing graph. Microphone input remains separate from playback and effects. Effects are summed into master output; volume/mute/solo apply after each track's effect chain.
+The requested reference is BOSS RC-505mkII. Official/manual retrieval was blocked by HTTP 403 in this environment. Loopee adapts loop-station workflows with original Web Audio code; it is not a complete emulation of the proprietary DSP, MIDI/USB, effect catalogue or independent track-length modes. See [design and limits](docs/loop-station-design.md).

@@ -1,0 +1,6 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {commitBuffer,undoTrack,redoTrack,mixSamples} from '../src/track-history.js';
+test('overdub mixes only the previous raw track and new input, without modifying either',()=>{const previous=Float32Array.of(.1,.2,-.3),take=Float32Array.of(.2,-.1,.1);const mixed=mixSamples(previous,take);assert.ok(Math.abs(mixed[0]-.3)<1e-6);assert.equal(previous[0],Math.fround(.1));assert.equal(take[0],Math.fround(.2));assert.throws(()=>mixSamples(previous,new Float32Array(2)));});
+test('undo and redo restore exact buffer references and isolate tracks',()=>{const a={buffer:'original'},b={buffer:'other'};commitBuffer(a,'overdub');assert.equal(a.buffer,'overdub');assert.ok(undoTrack(a));assert.equal(a.buffer,'original');assert.ok(redoTrack(a));assert.equal(a.buffer,'overdub');assert.equal(b.buffer,'other');});
+test('a first recording can be undone to an empty slot and redone',()=>{const t={buffer:null};commitBuffer(t,'take');undoTrack(t);assert.equal(t.buffer,null);redoTrack(t);assert.equal(t.buffer,'take');});
+test('a new take after undo replaces redo history',()=>{const t={buffer:'first'};commitBuffer(t,'second');undoTrack(t);commitBuffer(t,'third');assert.equal(redoTrack(t),false);undoTrack(t);assert.equal(t.buffer,'first');});

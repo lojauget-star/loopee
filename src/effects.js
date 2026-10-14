@@ -32,6 +32,7 @@ export function createEffectChain(ctx,settings,bpm){
     delay.delayTime.value=60/tempo/2;delayGain.gain.value=e[1].on?e[1].value/100*.7:0;
     reverbGain.gain.value=e[0].on?e[0].value/100*.8:0;chorusGain.gain.value=e[4].on?e[4].value/100*.7:0;
   }
+  let disposed=false;
   update(settings,bpm);
-  return {input,output,update,dispose(){lfo.stop();[input,drive,compressor,output,delay,delayGain,reverb,reverbGain,chorus,chorusGain,lfo,depth].forEach(node=>node.disconnect());}};
+  return {input,output,update,dispose(){if(disposed)return;disposed=true;lfo.stop();[input,drive,compressor,output,delay,delayGain,reverb,reverbGain,chorus,chorusGain,lfo,depth].forEach(node=>node.disconnect());}};
 }
