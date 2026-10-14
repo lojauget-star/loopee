@@ -11,3 +11,10 @@ export function shiftSamples(samples,advanceFrames){
  for(let i=0;i<length;i++)out[i]=samples[((i+advanceFrames)%length+length)%length];
  return out;
 }
+// Keep the hardware estimate stable across tracks in the same session.
+export function sessionLatencyMs(sync,context,settings={},inputCompressor=false){
+ if(sync.mode==='manual')return Math.max(0,Math.min(1000,Number(sync.ms)||0));
+ if(!Number.isFinite(sync.autoBaseMs))sync.autoBaseMs=estimatedLatencyMs(context,settings,false);
+ return Math.min(1000,sync.autoBaseMs+(inputCompressor?6:0));
+}
+export function audibleMetronome(mode,captureMode){return mode==='sound'||(mode==='auto'&&captureMode==='headphones');}

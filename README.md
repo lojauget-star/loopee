@@ -57,3 +57,11 @@ The capture panel offers a browser-reported estimate and a manual 0–1000 ms re
 If a new take remains late relative to the metronome, increase manual compensation in small steps; if it lands early, decrease it. This is an estimate, not a physical device calibration: browsers may omit input latency and Bluetooth/AEC can add unreported or variable delay. Use wired headphones for consistent timing. On an existing track, **Mais → Adiantar 10 ms / Atrasar 10 ms** circularly shifts audio and supports Undo/Redo without losing samples. Intentional delay/reverb effects are preserved; compensation does not remove their echoes.
 
 After clearing the last track, recording restarts with a fresh count-in. Additional tracks wait for a boundary at least 600 ms away to give the microphone and browser echo processing time to initialize. Compensation preserves all captured samples; it cannot reconstruct audio that the physical device or browser suppressed before capture.
+
+## Shared sync and safe metronome
+
+Latency compensation is one setting for the session: manual values apply to every subsequent recording/overdub, and automatic mode holds its hardware estimate fixed across takes. The setting is saved with audio sessions and as the device default. Switching input monitoring mode clears the estimate for the next recording. Automatic mode adds the known input-compressor processing delay only when that effect is active.
+
+The microphone stays active and prepared between takes while the station runs; **Parar todas**, transport Stop, or changing input monitoring mode releases it. The UI indicates this status. This reduces hardware restart variation; it does not constitute physical latency calibration.
+
+Metronome mode **Automático · seguro** emits visual pulses with speakers and audible clicks in headphones mode, including count-in. **Somente visual** never emits clicks. **Sonoro** explicitly allows them, with a capture warning. Speakers can still acoustically feed the base and rhythm into the mic; echo cancellation cannot guarantee isolation. Use headphones to hear the full base without re-recording it.
