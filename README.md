@@ -52,6 +52,8 @@ The requested reference is BOSS RC-505mkII. Official/manual retrieval was blocke
 
 ## Recording latency compensation
 
-The capture panel offers a browser-reported estimate and a manual 0–1000 ms recording offset, persisted on this device. The recorder captures from the compensated start through the compensated end, preserving a complete loop rather than trimming the delayed final notes. The guide briefly shows **Alinhando áudio ao loop** while those final samples arrive. The compressor is fully bypassed when off, avoiding its otherwise unnecessary lookahead latency.
+The capture panel offers a browser-reported estimate and a manual 0–1000 ms recording offset, persisted on this device. The recorder always captures the full logical cycle. Compensation circularly repositions the captured samples without skipping the beginning or shortening the window. The guide briefly shows **Alinhando áudio ao loop** during finalization. The compressor is fully bypassed when off, avoiding its otherwise unnecessary lookahead latency.
 
 If a new take remains late relative to the metronome, increase manual compensation in small steps; if it lands early, decrease it. This is an estimate, not a physical device calibration: browsers may omit input latency and Bluetooth/AEC can add unreported or variable delay. Use wired headphones for consistent timing. On an existing track, **Mais → Adiantar 10 ms / Atrasar 10 ms** circularly shifts audio and supports Undo/Redo without losing samples. Intentional delay/reverb effects are preserved; compensation does not remove their echoes.
+
+After clearing the last track, recording restarts with a fresh count-in. Additional tracks wait for a boundary at least 600 ms away to give the microphone and browser echo processing time to initialize. Compensation preserves all captured samples; it cannot reconstruct audio that the physical device or browser suppressed before capture.

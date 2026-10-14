@@ -211,7 +211,7 @@ async function handleRecord(target=null){
     const elapsed=Math.ceil(context.currentTime*context.sampleRate)-recording.startFrame;
     const end=recording.startFrame+Math.ceil((elapsed+128)/barFrames)*barFrames;
     const endFrame=Math.min(end,recording.startFrame+loopFrames);recording.endTime=endFrame/context.sampleRate;
-    recording.node.port.postMessage({type:'finish',end:endFrame+recording.captureOffset});
+    recording.node.port.postMessage({type:'finish',end:endFrame});
     recording.finishing=true;refreshRecordingGuide();return;
   }
   const slot=target?.slot||nextEmptySlot();if(!slot){toast('Cinco pistas preenchidas. Toque em Overdub para gravar sobre uma delas.');return;}
@@ -226,9 +226,10 @@ async function handleRecord(target=null){
     mic=await navigator.mediaDevices.getUserMedia(microphoneConstraints(captureMode));
     if(captureMode==='speakers'&&mic.getAudioTracks()[0]?.getSettings().echoCancellation!==true){$('#capture-note').textContent='Este navegador não confirmou cancelamento de eco. Use fones para evitar regravar as camadas anteriores.';}
     if(epoch!==recordingEpoch){mic.getTracks().forEach(t=>t.stop());return;}
+    if(!tracks.some(t=>t.buffer)&&playing)stop();
     if(!playing)await play(true);
     const duration=loopDuration(),now=context.currentTime;
-    const startTime=now<started?started:started+Math.ceil((now+.06-started)/duration)*duration;
+    const startTime=now<started?started:started+Math.ceil((now+.6-started)/duration)*duration;
     const startFrame=Math.round(startTime*context.sampleRate);
     const latencyMs=$('#latency-mode').value==='auto'?estimatedLatencyMs(context,mic.getAudioTracks()[0]?.getSettings(),inputEffects[5].on):+$('#latency-ms').value;$('#latency-ms').value=latencyMs;
     const capture=shiftedCapture(startFrame,startFrame+loopFrames,latencyMs,context.sampleRate);
@@ -238,7 +239,7 @@ async function handleRecord(target=null){
     node.port.onmessage=({data})=>{
       if(data.type!=='complete'||recording!==take)return;
       const buffer=context.createBuffer(2,loopFrames,context.sampleRate);
-      buffer.copyToChannel(data.left,0);buffer.copyToChannel(data.right,1);
+      buffer.copyToChannel(shiftSamples(data.left,take.captureOffset),0);buffer.copyToChannel(shiftSamples(data.right,take.captureOffset),1);
       releaseCapture();if(take.overdub){const merged=context.createBuffer(2,loopFrames,context.sampleRate);for(let c=0;c<2;c++)merged.copyToChannel(mixSamples(take.overdub.buffer.getChannelData(c),buffer.getChannelData(c)),c);commitBuffer(take.overdub,merged);replaceTrackAudio(take.overdub);selected=tracks.indexOf(take.overdub);renderTracks();renderEffects();}else addAudioTrack(buffer,`Pista ${slot}`,'MICROFONE',slot);
       $('#audio-status').textContent='Loop tocando · grave outra camada';
     };

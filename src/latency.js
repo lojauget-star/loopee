@@ -4,7 +4,7 @@ export function estimatedLatencyMs(context, settings={}, inputCompressor=false) 
 }
 export function shiftedCapture(start,end,latencyMs,sampleRate){
  const offset=Math.round(Math.max(0,Math.min(1000,Number(latencyMs)||0))*sampleRate/1000);
- return {start:start+offset,end:end+offset,offset};
+ return {start,end,offset};
 }
 export function shiftSamples(samples,advanceFrames){
  const out=new Float32Array(samples.length),length=samples.length;
