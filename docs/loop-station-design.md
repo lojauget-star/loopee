@@ -33,6 +33,6 @@ The UI derives its waiting/recording/finishing state from scheduled start/end ti
 - This version implements a shared fixed loop length, not the hardware's full multi-track independent length, one-shot, assignment, MIDI or USB feature set.
 - It provides six original input effects and six original effects per track, not the complete proprietary BOSS algorithms or presets.
 - Overdub currently requires normal forward playback; switch off reverse and half speed before capturing onto that track.
-- There is no sample-latency calibration, pitch-preserving time stretch or automatic musical key detection. Half speed also lowers pitch.
+- Recording supports a browser-reported latency estimate and manual offset, but no physical loopback calibration. There is no pitch-preserving time stretch or automatic musical key detection. Half speed also lowers pitch.
 - Undo/redo covers audio edits, not effect parameter changes, and history is not restored with saved sessions.
 - Memory is local to the browser; clearing site data removes sessions. Export a WAV backup. No cloud accounts, payments, or commercial sound assets are included.

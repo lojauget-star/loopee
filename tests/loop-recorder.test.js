@@ -49,3 +49,7 @@ test('cancel never emits an unfinished layer', () => {
   r.block(4, new Float32Array(8));
   assert.equal(r.results.length, 0);
 });
+
+test('a compensated capture excludes delayed count-in and preserves delayed final samples',()=>{
+ const r=recorder();r.message({type:'arm',start:5,end:11});r.block(0,Float32Array.from([0,0,0,0,0,1,2,3]));r.block(8,Float32Array.from([4,5,6,99]));assert.deepEqual(Array.from(r.results[0].left),[1,2,3,4,5,6]);
+});

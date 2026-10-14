@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {shiftedCapture,shiftSamples,estimatedLatencyMs} from '../src/latency.js';
+test('capture window moves both boundaries, preserving loop duration and delayed final note',()=>{assert.deepEqual(shiftedCapture(100,1100,50,1000),{start:150,end:1150,offset:50});});
+test('manual alignment wraps notes instead of dropping the beginning or end',()=>{assert.deepEqual([...shiftSamples(Float32Array.of(1,2,3,4),1)],[2,3,4,1]);assert.deepEqual([...shiftSamples(Float32Array.of(1,2,3,4),-1)],[4,1,2,3]);});
+test('device estimate includes reported input/output and only active input compressor latency',()=>{assert.equal(estimatedLatencyMs({baseLatency:.01,outputLatency:.02},{latency:.03},true),66);assert.equal(estimatedLatencyMs({},{}),0);});

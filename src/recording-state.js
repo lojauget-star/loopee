@@ -9,6 +9,7 @@ export function recordingView({ busy, take, now, beatDuration, loopDuration, pla
         detail: `${beats} ${beats === 1 ? 'tempo' : 'tempos'} até começar · a base continua tocando`,
         counter: String(beats), unit: 'TEMPOS PARA ENTRAR', progress: 0, beat: beats % 4, step: 1 };
     }
+    if(now>=end)return {phase:'finishing',title:'Alinhando áudio ao loop',action:'Alinhando…',detail:'A captura recebe o final do som e compensa o atraso do dispositivo.',counter:'0.0',unit:'FECHANDO O TAKE',progress:1,beat:-1,step:2};
     const remaining = Math.max(0, end - now);
     return { phase: take.finishing ? 'finishing' : 'recording',
       title: take.finishing ? 'Fechando no próximo compasso' : 'Gravando — toque agora',

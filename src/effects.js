@@ -21,11 +21,13 @@ export function createEffectChain(ctx,settings,bpm){
   const delay=ctx.createDelay(2),delayGain=ctx.createGain(),reverb=ctx.createConvolver(),reverbGain=ctx.createGain(),chorus=ctx.createDelay(.1),chorusGain=ctx.createGain(),lfo=ctx.createOscillator(),depth=ctx.createGain();
   input.type='lowpass';reverb.buffer=impulseFor(ctx);chorus.delayTime.value=.02;lfo.frequency.value=.8;depth.gain.value=.003;
   lfo.connect(depth).connect(chorus.delayTime);lfo.start();
-  input.connect(drive).connect(compressor).connect(output);
-  compressor.connect(delay).connect(delayGain).connect(output);
-  compressor.connect(reverb).connect(reverbGain).connect(output);
-  compressor.connect(chorus).connect(chorusGain).connect(output);
+  input.connect(drive);const send=ctx.createGain();send.connect(output);
+  send.connect(delay).connect(delayGain).connect(output);
+  send.connect(reverb).connect(reverbGain).connect(output);
+  send.connect(chorus).connect(chorusGain).connect(output);
+  let compressorEnabled=null;
   function update(e,tempo){
+    if(compressorEnabled!==e[5].on){drive.disconnect();compressor.disconnect();if(e[5].on)drive.connect(compressor).connect(send);else drive.connect(send);compressorEnabled=e[5].on;}
     input.frequency.value=e[2].on?Math.min(ctx.sampleRate/2,100+e[2].value**2*2):ctx.sampleRate/2;
     if(e[3].on){const k=e[3].value*2,curve=new Float32Array(4096);for(let i=0;i<curve.length;i++){const x=i*2/(curve.length-1)-1;curve[i]=(3+k)*x*20*(Math.PI/180)/(Math.PI+k*Math.abs(x));}drive.curve=curve;}else drive.curve=null;
     compressor.threshold.value=e[5].on?-e[5].value*.6:0;compressor.ratio.value=e[5].on?4:1;
@@ -34,5 +36,5 @@ export function createEffectChain(ctx,settings,bpm){
   }
   let disposed=false;
   update(settings,bpm);
-  return {input,output,update,dispose(){if(disposed)return;disposed=true;lfo.stop();[input,drive,compressor,output,delay,delayGain,reverb,reverbGain,chorus,chorusGain,lfo,depth].forEach(node=>node.disconnect());}};
+  return {input,output,update,dispose(){if(disposed)return;disposed=true;lfo.stop();[input,drive,compressor,send,output,delay,delayGain,reverb,reverbGain,chorus,chorusGain,lfo,depth].forEach(node=>node.disconnect());}};
 }
